@@ -22,7 +22,8 @@ async function generatePrayer(prompt: string, denomination: string) {
     - Include elements of gratitude, supplication, and surrender to God's will
     - Make it appropriate for ${denomination} Christian tradition
     - Format with appropriate line breaks for readability
-    - Sign with "In Jesus' name, Amen."`;
+    - Sign with "In Jesus' name, Amen.
+    - You must include Bible verses relevant to the prayer at the end`;
 
     const result = await model.generateContent(fullPrompt);
     const response = await result.response;
