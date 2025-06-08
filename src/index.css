@@ -2,23 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-@supports (padding: max(0px)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+/* Base styles for html and body */
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrolling on html/body */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Ensure content doesn't go under the notch */
+/* Root element styles */
+#root {
+  min-height: 100vh;
+  height: 100vh; /* Ensure it takes full viewport height */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent scrolling on root */
+}
+
+/* Ensure content respects safe areas without extra white space */
 body {
-  padding-top: constant(safe-area-inset-top); /* For iOS 11.0 - 11.2 */
-  padding-top: env(safe-area-inset-top); /* For iOS 11.2+ */
-  padding-left: constant(safe-area-inset-left);
-  padding-left: env(safe-area-inset-left);
-  padding-right: constant(safe-area-inset-right);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-bottom: env(safe-area-inset-bottom);
+  background: #0f172a; /* Fallback color */
+  background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+  -webkit-tap-highlight-color: transparent;
 }
 
 @custom-variant dark (&:is(.dark *));
