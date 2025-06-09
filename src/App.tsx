@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { onAuthStateChanged } from 'firebase/auth';
 import { UserProvider, useUser } from '@/contexts/UserContext';
 import { Navigation } from '@/components/Navigation';
 import HomeScreen from '@/screens/home/HomeScreen';
 import { ProfileScreen } from '@/screens/profile/ProfileScreen';
 import { NameScreen } from '@/screens/onboarding/NameScreen';
 import { DenominationScreen } from '@/screens/onboarding/DenominationScreen';
+import LoginScreen from '@/screens/auth/LoginScreen';
+import { SignupScreen } from '@/screens/auth/SignupScreen';
+import { auth } from './firebase';
 
 const OnboardingFlow = () => {
   const { name, denomination, setName, setDenomination, completeOnboarding } = useUser();
@@ -56,9 +60,21 @@ const OnboardingFlow = () => {
 const AppRoutes = () => {
   const { hasCompletedOnboarding } = useUser();
   const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [currentView, setCurrentView] = useState<'input' | 'prayer'>('input');
 
-  if (!hasCompletedOnboarding) {
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>; // Or a loading spinner
+  }
+
+  if (!isAuthenticated) {
     return <OnboardingFlow />;
   }
 
@@ -80,6 +96,8 @@ const AppRoutes = () => {
             } 
           />
           <Route path="/profile" element={<ProfileScreen />} />
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/signup" element={<SignupScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>

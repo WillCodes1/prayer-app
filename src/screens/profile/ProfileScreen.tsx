@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase'; // Assuming firebase.ts is in the src directory
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Edit, RotateCcw, ChevronDown, Check } from 'lucide-react';
@@ -8,7 +10,7 @@ import { Edit, RotateCcw, ChevronDown, Check } from 'lucide-react';
 type Denomination = 'Catholic' | 'Protestant' | 'Lutheran' | 'Orthodox' | 'Other';
 
 export const ProfileScreen = () => {
-  const { name, denomination, setName, setDenomination, resetUser } = useUser();
+  const { name, denomination, setName, setDenomination, resetUser, isAuthenticated } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(name);
   const [showDenominationDropdown, setShowDenominationDropdown] = useState(false);
@@ -38,6 +40,15 @@ export const ProfileScreen = () => {
       setIsEditing(false);
       setNewName('');
       setSelectedDenomination(null);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // The UserContext listener will handle redirection after sign out
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
@@ -168,11 +179,21 @@ export const ProfileScreen = () => {
         </div>
 
         {!isEditing && (
-          <div className="pt-4">
+          <div className="pt-4 space-y-4">
             <Button
               variant="destructive"
               className={'w-full'} // Keep w-full, variant handles the rest
               onClick={handleReset}
+              disabled={!isAuthenticated} // Disable if not authenticated
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset Profile
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full text-white border-white/20 hover:bg-white/10"
+              onClick={handleLogout}
+              disabled={!isAuthenticated} // Disable if not authenticated
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Reset Profile
