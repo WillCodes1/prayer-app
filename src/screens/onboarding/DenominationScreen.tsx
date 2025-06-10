@@ -14,10 +14,11 @@ const denominations: { value: Denomination; label: string }[] = [
 ];
 
 interface DenominationScreenProps {
-  onComplete: (denomination: Denomination) => void;
+  onComplete: (denomination: Denomination) => void | Promise<void>;
   onBack?: () => void;
   initialDenomination?: Denomination;
   showBackButton?: boolean;
+  isSubmitting?: boolean;
 }
 
 export const DenominationScreen: React.FC<DenominationScreenProps> = ({
@@ -25,6 +26,7 @@ export const DenominationScreen: React.FC<DenominationScreenProps> = ({
   onBack,
   initialDenomination,
   showBackButton = true,
+  isSubmitting = false,
 }) => {
   const [selectedDenomination, setSelectedDenomination] = useState<Denomination | null>(
     initialDenomination || null
@@ -109,12 +111,12 @@ export const DenominationScreen: React.FC<DenominationScreenProps> = ({
                 'transition-all duration-300',
                 'hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/30',
                 'disabled:opacity-50 disabled:scale-100 disabled:shadow-lg',
-                !selectedDenomination ? 'opacity-50 cursor-not-allowed' : ''
+                (!selectedDenomination || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''
               )}
               onClick={() => selectedDenomination && onComplete(selectedDenomination)}
-              disabled={!selectedDenomination}
+              disabled={!selectedDenomination || isSubmitting}
             >
-              Complete Setup
+              {isSubmitting ? 'Completing...' : 'Complete Setup'}
             </Button>
           </motion.div>
         </motion.div>

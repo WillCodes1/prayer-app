@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Edit, RotateCcw, ChevronDown, Check } from 'lucide-react';
+import { Edit, ChevronDown, Check, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type Denomination = 'Catholic' | 'Protestant' | 'Lutheran' | 'Orthodox' | 'Other';
 
 export const ProfileScreen = () => {
-  const { name, denomination, setName, setDenomination, resetUser } = useUser();
+  const { name, denomination, setName, setDenomination } = useUser();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(name);
   const [showDenominationDropdown, setShowDenominationDropdown] = useState(false);
@@ -32,12 +36,14 @@ export const ProfileScreen = () => {
     setIsEditing(false);
   };
 
-  const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset your profile? This will clear your name and denomination.')) {
-      resetUser();
-      setIsEditing(false);
-      setNewName('');
-      setSelectedDenomination(null);
+
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/signin');
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
@@ -169,14 +175,16 @@ export const ProfileScreen = () => {
 
         {!isEditing && (
           <div className="pt-4">
-            <Button
-              variant="destructive"
-              className={'w-full'} // Keep w-full, variant handles the rest
-              onClick={handleReset}
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Reset Profile
-            </Button>
+            <div className="space-y-4 mt-8 w-full max-w-xs mx-auto">
+
+              <Button
+                onClick={handleSignOut}
+                className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/30"
+              >
+                <LogOut className="w-5 h-5 mr-2" />
+                <span>Sign Out</span>
+              </Button>
+            </div>
           </div>
         )}
       </motion.div>
