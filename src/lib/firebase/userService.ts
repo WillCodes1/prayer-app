@@ -8,9 +8,7 @@ import {
   query,
   where,
   getDocs,
-  DocumentData,
-  DocumentReference,
-  DocumentSnapshot
+  DocumentData
 } from 'firebase/firestore';
 import { db } from './config';
 import { FirebaseError } from './errors';

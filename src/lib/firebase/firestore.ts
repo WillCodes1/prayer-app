@@ -6,23 +6,19 @@ import {
   updateDoc, 
   deleteDoc, 
   query, 
-  where, 
   getDocs, 
   addDoc, 
   serverTimestamp,
   DocumentData,
   DocumentReference,
-  QueryDocumentSnapshot,
   DocumentSnapshot,
   CollectionReference,
   Query,
   QueryConstraint,
-  orderBy,
-  limit,
-  startAfter,
-  getCountFromServer,
   writeBatch,
-  runTransaction
+  runTransaction,
+  onSnapshot,
+  QuerySnapshot
 } from 'firebase/firestore';
 import { db } from './config';
 import { FirebaseError } from './errors';
@@ -81,11 +77,13 @@ export async function setDocument<T extends DocumentData>(
   merge = true
 ): Promise<string> {
   try {
-    const docRef = docId 
-      ? await setDoc(getDocRef(collectionPath, docId), data, { merge })
-      : await addDoc(getCollectionRef(collectionPath), data);
-    
-    return typeof docRef === 'string' ? docRef : docRef.id;
+    if (docId) {
+      await setDoc(getDocRef(collectionPath, docId), data, { merge });
+      return docId;
+    } else {
+      const newDocRef = await addDoc(getCollectionRef(collectionPath), data);
+      return newDocRef.id;
+    }
   } catch (error) {
     throw new FirebaseError(error as Error);
   }
@@ -160,14 +158,14 @@ export function subscribeToDocument<T extends DocumentData>(
   
   const unsubscribe = onSnapshot(
     docRef,
-    (docSnap) => {
+    (docSnap: DocumentSnapshot<T>) => {
       if (docSnap.exists()) {
         callback({ id: docSnap.id, ...docSnap.data() } as T & { id: string });
       } else {
         callback(null);
       }
     },
-    (error) => {
+    (error: Error) => {
       console.error('Error subscribing to document:', error);
       callback(null, new FirebaseError(error));
     }
@@ -191,16 +189,16 @@ export function subscribeToCollection<T extends DocumentData>(
   
   const unsubscribe = onSnapshot(
     q,
-    (querySnapshot) => {
+    (querySnapshot: QuerySnapshot<T>) => {
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
       callback(data);
     },
-    (error) => {
+    (error: Error) => {
       console.error('Error subscribing to collection:', error);
-      callback([], new FirebaseError(error));
+      callback([], new FirebaseError(error as Error));
     }
   );
   
@@ -226,7 +224,7 @@ export async function runFirestoreTransaction<T>(
 export function createBatch() {
   return {
     batch: writeBatch(db),
-    set: function<T>(
+    set: function<T extends DocumentData>(
       collectionPath: string, 
       data: T, 
       docId?: string
@@ -238,13 +236,13 @@ export function createBatch() {
       this.batch.set(docRef, data);
       return docRef.id;
     },
-    update: function<T>(
+    update: function<T extends DocumentData>(
       collectionPath: string, 
       docId: string, 
       data: Partial<T>
     ) {
       const docRef = getDocRef(collectionPath, docId);
-      this.batch.update(docRef, data);
+      this.batch.update(docRef, data as DocumentData);
     },
     delete: function(collectionPath: string, docId: string) {
       const docRef = getDocRef(collectionPath, docId);

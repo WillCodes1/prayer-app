@@ -5,10 +5,9 @@ import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requireOnboarding?: boolean;
 }
 
-export function ProtectedRoute({ children, requireOnboarding = true }: ProtectedRouteProps) {
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { currentUser, loading } = useAuth();
   const navigate = useNavigate();
 

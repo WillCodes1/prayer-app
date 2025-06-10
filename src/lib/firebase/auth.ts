@@ -5,16 +5,15 @@ import {
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   OAuthProvider,
-  UserCredential,
   User as FirebaseUser,
   updateProfile as updateFirebaseProfile,
   updateEmail as updateFirebaseEmail,
   updatePassword as updateFirebasePassword,
   sendPasswordResetEmail as sendFirebasePasswordResetEmail,
   confirmPasswordReset as confirmFirebasePasswordReset,
-  applyActionCode,
-  checkActionCode,
-  verifyPasswordResetCode,
+  applyActionCode as firebaseApplyActionCode,
+  checkActionCode as firebaseCheckActionCode,
+  verifyPasswordResetCode as firebaseVerifyPasswordResetCode,
   Auth,
   AuthError
 } from 'firebase/auth';
@@ -148,7 +147,7 @@ export async function confirmPasswordReset(code: string, newPassword: string): P
  */
 export async function verifyPasswordResetCode(code: string): Promise<string> {
   try {
-    return await verifyPasswordResetCode(auth, code);
+    return await firebaseVerifyPasswordResetCode(auth, code);
   } catch (error) {
     throw new FirebaseError(error as AuthError);
   }
@@ -159,7 +158,7 @@ export async function verifyPasswordResetCode(code: string): Promise<string> {
  */
 export async function applyActionCode(code: string): Promise<void> {
   try {
-    await applyActionCode(auth, code);
+    await firebaseApplyActionCode(auth, code);
   } catch (error) {
     throw new FirebaseError(error as AuthError);
   }
@@ -171,19 +170,17 @@ export async function applyActionCode(code: string): Promise<void> {
 export async function checkActionCode(code: string): Promise<{
   data: {
     email?: string;
-    fromEmail?: string;
     previousEmail?: string;
     multiFactorInfo?: any;
   };
   operation: string;
 }> {
   try {
-    const info = await checkActionCode(auth, code);
+    const info = await firebaseCheckActionCode(auth, code);
     return {
       data: {
-        email: info.data.email,
-        fromEmail: info.data.fromEmail,
-        previousEmail: info.data.previousEmail,
+        email: info.data.email ?? undefined,
+        previousEmail: info.data.previousEmail ?? undefined,
         multiFactorInfo: info.data.multiFactorInfo,
       },
       operation: info.operation,

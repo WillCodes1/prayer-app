@@ -11,8 +11,7 @@ import {
   createUserWithEmailAndPassword, 
   signInWithPopup,
   signOut as firebaseSignOut,
-  onAuthStateChanged,
-  User
+  onAuthStateChanged
 } from 'firebase/auth';
 import { auth, googleProvider, appleProvider } from '../lib/firebase';
 import { createUserDocument, getUserData, updateUserData, UserData } from '../lib/firebase';

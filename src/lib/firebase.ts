@@ -58,12 +58,14 @@ appleProvider.setCustomParameters({
 });
 
 // Set persistence for auth state
-try {
-  await setPersistence(auth, browserLocalPersistence);
-  console.log('Auth persistence set to LOCAL');
-} catch (error) {
-  console.error('Error setting auth persistence:', error);
-}
+(async () => {
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    console.log('Auth persistence set to LOCAL');
+  } catch (error) {
+    console.error('Error setting auth persistence:', error);
+  }
+})();
 
 // User data type
 export interface UserData {

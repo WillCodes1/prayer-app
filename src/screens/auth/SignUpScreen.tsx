@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Loader2, ArrowLeft, User, Check } from 'lucide-react';
 import { getFirebaseErrorMessage } from '@/lib/firebase/errors';
+import { isMobileWebView, isIOS } from '@/utils/device';
 
 export function SignUpScreen() {
   const [name, setName] = useState('');
@@ -89,12 +90,43 @@ export function SignUpScreen() {
 
   const passwordStrength = getPasswordStrength();
 
+  // Apply specific styles for iOS web view
+  const [isWebView, setIsWebView] = useState(false);
+  const [isIos, setIsIos] = useState(false);
+
+  useEffect(() => {
+    // Check if we're in a web view
+    const checkWebView = async () => {
+      const mobileWebView = isMobileWebView();
+      const iosDevice = isIOS();
+      setIsWebView(mobileWebView);
+      setIsIos(iosDevice);
+      
+      // Log for debugging
+      console.log('Running in WebView:', mobileWebView);
+      console.log('Running on iOS:', iosDevice);
+      console.log('User Agent:', navigator.userAgent);
+    };
+    
+    checkWebView();
+  }, []);
+
+  // Add specific class names based on the environment
+  const containerClasses = [
+    'flex items-center justify-center',
+    'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950',
+    'p-4 overflow-y-auto',
+    isWebView ? 'fixed inset-0' : 'min-h-screen w-full',
+    isIos ? 'ios-webview' : ''
+  ].join(' ');
+
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
+    <div className={containerClasses}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md space-y-6"
+        className="w-full max-w-md space-y-6 py-8 px-4"
+        style={isWebView ? { WebkitOverflowScrolling: 'touch' } : {}}
       >
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white">Create an account</h1>
