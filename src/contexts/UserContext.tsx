@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '../firebase';
 
 type Denomination = 'Catholic' | 'Protestant' | 'Lutheran' | 'Orthodox' | 'Other' | '';
 
@@ -8,8 +6,6 @@ interface UserContextType {
   name: string;
   denomination: Denomination;
   hasCompletedOnboarding: boolean;
-  isAuthenticated: boolean;
-  user: User | null;
   setName: (name: string) => void;
   setDenomination: (denomination: Denomination) => void;
   completeOnboarding: () => void;
@@ -28,23 +24,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(
     localStorage.getItem('hasCompletedOnboarding') === 'true'
   );
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setIsAuthenticated(!!user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const userHasCompletedOnboarding = isAuthenticated && hasCompletedOnboarding;
-
-  if (loading) return null; // Or a loading spinner
 
   const completeOnboarding = useCallback(() => {
     localStorage.setItem('hasCompletedOnboarding', 'true');
@@ -59,7 +38,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('userDenomination');
     setName('');
     setDenomination('');
-    setHasCompletedOnboarding(false); // Keep onboarding status separate from auth
+    setHasCompletedOnboarding(false);
   }, []);
 
   return (
@@ -70,8 +49,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         hasCompletedOnboarding,
         setName,
         setDenomination,
-        isAuthenticated,
-        user,
         completeOnboarding,
         resetUser,
       }}
