@@ -1,14 +1,17 @@
 # Prayer App
 
-A modern, responsive web application for generating and managing prayers using Google's Gemini AI. Built with React, TypeScript, Vite, and Tailwind CSS.
+A modern, responsive web application for generating and managing prayers using Google's Gemini AI. Built with React, TypeScript, Vite, Tailwind CSS, and Firebase.
 
 ## Features
 
-- Generate prayers using AI
-- Modern, responsive UI with dark/light mode
-- Smooth animations with Framer Motion
-- Built with accessibility in mind
-- Mobile-first design
+- 🔐 Secure authentication with Firebase (Email/Password, Google, Apple)
+- 🌐 Real-time data sync with Firestore
+- ✨ Generate prayers using AI
+- 🎨 Modern, responsive UI with dark/light mode
+- 🚀 Smooth animations with Framer Motion
+- ♿ Built with accessibility in mind
+- 📱 Mobile-first design
+- ⚡ Offline support with Firestore persistence
 
 ## Tech Stack
 
@@ -16,7 +19,9 @@ A modern, responsive web application for generating and managing prayers using G
 - **Styling**: Tailwind CSS with custom theming
 - **UI Components**: Radix UI Primitives
 - **Animations**: Framer Motion
-- **State Management**: React Hooks
+- **State Management**: React Hooks, React Context
+- **Authentication**: Firebase Authentication
+- **Database**: Firestore (NoSQL)
 - **Build Tool**: Vite
 - **Linting/Formatting**: ESLint, Prettier
 
@@ -27,6 +32,7 @@ A modern, responsive web application for generating and managing prayers using G
 - Node.js 18+
 - npm or yarn
 - Google Gemini API key
+- Firebase project with Authentication and Firestore enabled
 
 ### Installation
 
@@ -41,9 +47,22 @@ A modern, responsive web application for generating and managing prayers using G
    npm install
    ```
 
-3. Create a `.env.local` file in the root directory and add your Google Gemini API key:
+3. Create a `.env.local` file in the root directory and add your API keys (use `.env.local.example` as a reference):
    ```env
-   VITE_GEMINI_API_KEY=your_api_key_here
+   # Google Gemini
+   VITE_GEMINI_API_KEY=your_gemini_api_key_here
+   
+   # Firebase
+   VITE_FIREBASE_API_KEY=your_firebase_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+   
+   # App Environment
+   VITE_APP_ENV=development
    ```
 
 4. Start the development server
@@ -58,9 +77,14 @@ A modern, responsive web application for generating and managing prayers using G
 ```
 src/
 ├── components/     # Reusable UI components
+├── contexts/      # React context providers
 ├── lib/           # Utility functions and API clients
+│   └── firebase/  # Firebase configuration and utilities
+├── screens/       # Page components
+│   └── auth/      # Authentication screens
 ├── styles/        # Global styles and CSS variables
-└── App.tsx       # Main application component
+├── types/         # TypeScript type definitions
+└── App.tsx        # Main application component
 ```
 
 ## Available Scripts
@@ -78,6 +102,25 @@ src/
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## Firebase Setup
+
+1. Create a new project in the [Firebase Console](https://console.firebase.google.com/)
+2. Enable Authentication with Email/Password, Google, and Apple sign-in methods
+3. Set up Firestore Database in production mode with the following security rules:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{userId} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+       // Add other collection rules as needed
+     }
+   }
+   ```
+4. Register your web app in Firebase Console and get your Firebase config
+5. Add your Firebase config to `.env.local` as shown in the Installation section
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -85,6 +128,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - [Google Gemini API](https://ai.google.dev/)
+- [Firebase](https://firebase.google.com/)
 - [Vite](https://vitejs.dev/)
 - [React](https://reactjs.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
